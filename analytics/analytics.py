@@ -30,8 +30,7 @@ while True:
                 hour DATETIME,
                 max_temperature FLOAT,
                 data_points INT,
-                total_distance FLOAT,
-                PRIMARY KEY (device_id, time)
+                total_distance FLOAT
                 );
             """))
             mysql_conn.commit()
@@ -65,17 +64,26 @@ def etl_process():
                 # Build the SQL query to fetch new data
                 sql = f"""
                     SELECT *
-                    FROM devices
-                    where time > '{last_processed_timestamp}'
+                    FROM devices;
+                    
                 """
+                # sql = f"""
+                #     SELECT *
+                #     FROM devices
+                #     where time > cast('{last_processed_timestamp}' as datetime);
+                # """
                 query = pd.read_sql_query(text(sql), psql_conn)
+                psql_conn.commit()
                 # Store the query result in a pandas DataFrame
                 temp_df = pd.DataFrame(query)
+
+                print('QUery: ', sql)
+                print('df: ',temp_df.head())
                 df_list.append(temp_df)
-                
                 df_aggregated = generate_df(df_list)
                 df_aggregated.to_sql('hourly_aggregations', mysql_conn, if_exists='append', index=False)
                 last_processed_timestamp = df['time'].max()
+                break
             except Exception as e:
                 print(e)
             # Sleep for a specific interval (e.g., 1 hour)
@@ -84,7 +92,7 @@ def etl_process():
 def generate_df(list_of_df):
     df = pd.concat(list_of_df)
     #converting int time to datetime object
-    df['time'] = df['time'].apply(lambda x: datetime.datetime.fromtimestamp(int(x)))
+    df['time'] = df['time'].apply(lambda x: datetime.fromtimestamp(int(x)))
     #extracting hour
 
     df['hour'] = pd.to_datetime(df['time']).dt.floor('H')
