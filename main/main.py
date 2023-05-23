@@ -38,6 +38,7 @@ async def store_data_point(device_id):
             conn.execute(ins, data)
             conn.commit()
             print(device_id, data['time'])
+            print(data)
             await asyncio.sleep(1.0)
 
 
