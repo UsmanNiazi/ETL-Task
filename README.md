@@ -1,3 +1,13 @@
+# About the Repository
+
+This repository contains the code to perform an ETL from a Postgres Database to a MySQL database using python and docker. 
+This repository has 2 Branches to manage the WSL/Docker dependency for different CPU Vendors
+- Master
+-- This branch is for intel based system. It contains the dependencies that will work on Intel Based CPUs
+- AMD:
+-- This branch is for AMD based systems. It contains the dependencies that will work on AMD based CPUs.
+
+
 ## Running the docker
 
 To get started run ``` docker-compose up ``` in root directory.
